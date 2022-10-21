@@ -117,7 +117,13 @@ function factory(options) {
     getSubdomain: function (url) {
       return parse(url, SUB_DOMAIN).subdomain;
     },
-    fromUserSettings: factory
+    fromUserSettings: factory,
+
+    rules: function (key) {
+      if (key==='icann') return Trie.fromJson(require('./icann.json'));
+      if (key==='private') return Trie.fromJson(require('./private.json'));
+      return Trie.fromJson(require('./rules.json'));
+    }
   };
 }
 
