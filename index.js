@@ -3,6 +3,7 @@
 // Load rules
 var Trie = require('./lib/suffix-trie.js');
 var allRules = Trie.fromJson(require('./rules.json'));
+var icannRules = Trie.fromJson(require('./icann.json'));
 
 // Internals
 var extractHostname = require('./lib/clean-host.js');
@@ -56,6 +57,12 @@ function factory(options) {
       publicSuffix: null,
       domain: null,
       subdomain: null,
+      icann:{
+        tldExists: false,
+        publicSuffix: null,
+        domain: null,
+        subdomain: null,
+      }
     };
 
     if (result.hostname === null) {
@@ -78,19 +85,23 @@ function factory(options) {
     // Check if tld exists
     if (step === ALL || step === TLD_EXISTS) {
       result.tldExists = tldExists(rules, result.hostname);
+      result.icann.tldExists = tldExists(icannRules, result.hostname);
     }
     if (step === TLD_EXISTS) { return result; }
 
     // Extract public suffix
     result.publicSuffix = getPublicSuffix(rules, result.hostname);
+    result.icann.publicSuffix = getPublicSuffix(icannRules, result.hostname);
     if (step === PUBLIC_SUFFIX) { return result; }
 
     // Extract domain
     result.domain = getDomain(validHosts, result.publicSuffix, result.hostname);
+    result.icann.domain = getDomain(validHosts, result.icann.publicSuffix, result.hostname);
     if (step === DOMAIN) { return result; }
 
     // Extract subdomain
     result.subdomain = getSubdomain(result.hostname, result.domain);
+    result.icann.subdomain = getSubdomain(result.hostname, result.icann.domain);
 
     return result;
   }
