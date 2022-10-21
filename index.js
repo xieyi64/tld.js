@@ -33,7 +33,8 @@ var ALL = 5;
  */
 function factory(options) {
   var rules = options.rules || allRules || {};
-  var validHosts = options.validHosts || [];
+  var rfc6761Hosts = ['localhost','local','example','invalid','test'];
+  var validHosts = options.rfc6761===true ? [...(rfc6761Hosts),...(options.validHosts || [])] : (options.validHosts || []);
   var _extractHostname = options.extractHostname || extractHostname;
 
   /**
