@@ -34,7 +34,8 @@ var ALL = 5;
 function factory(options) {
   var rules = options.rules || allRules || {};
   var rfc6761Hosts = ['localhost','local','example','invalid','test'];
-  var validHosts = options.rfc6761===true ? [...(rfc6761Hosts),...(options.validHosts || [])] : (options.validHosts || []);
+  var validHosts = (options.rfc6761===true ? [...(rfc6761Hosts),...(options.validHosts || [])] : (options.validHosts || []))
+    .filter((v,i,self)=>(i===self.indexOf(v)));
   var _extractHostname = options.extractHostname || extractHostname;
 
   /**
