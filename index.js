@@ -22,8 +22,9 @@ var tldExists = require('./lib/tld-exists.js');
 var TLD_EXISTS = 1;
 var PUBLIC_SUFFIX = 2;
 var DOMAIN = 3;
-var SUB_DOMAIN = 4;
-var ALL = 5;
+var SITE_DOMAIN = 4;
+var SUB_DOMAIN = 5;
+var ALL = 6;
 
 
 /**
@@ -58,13 +59,15 @@ function factory(options) {
       isHost: null,
       tldExists: false,
       publicSuffix: null,
-      domain: null,
+      sitedomain: null,
       subdomain: null,
+      domain: null,
       icann:{
         tldExists: false,
         publicSuffix: null,
-        domain: null,
+        sitedomain: null,
         subdomain: null,
+        domain: null,
       }
     };
 
@@ -113,6 +116,11 @@ function factory(options) {
     result.icann.domain = getDomain(validHosts, result.icann.publicSuffix, result.hostname);
     if (step === DOMAIN) { return result; }
 
+    // Extract sitedomain
+    result.sitedomain = result.domain ? result.domain.replace('.'+result.publicSuffix,'') : null;
+    result.icann.sitedomain = result.icann.domain ? result.icann.domain.replace('.'+result.icann.publicSuffix,'') : null;
+    if (step === SITE_DOMAIN) { return result; }
+
     // Extract subdomain
     result.subdomain = getSubdomain(result.hostname, result.domain);
     result.icann.subdomain = getSubdomain(result.hostname, result.icann.domain);
@@ -133,14 +141,21 @@ function factory(options) {
     tldExists: function (url) {
       return parse(url, TLD_EXISTS).tldExists;
     },
-    getPublicSuffix: function (url) {
-      return parse(url, PUBLIC_SUFFIX).publicSuffix;
+    getPublicSuffix: function (url,icann) {
+      const parsed = parse(url, PUBLIC_SUFFIX);
+      return icann ? parsed.icann.publicSuffix : parsed.publicSuffix;
     },
-    getDomain: function (url) {
-      return parse(url, DOMAIN).domain;
+    getDomain: function (url,icann) {
+      const parsed = parse(url, DOMAIN);
+      return icann ? parsed.icann.domain : parsed.domain;
     },
-    getSubdomain: function (url) {
-      return parse(url, SUB_DOMAIN).subdomain;
+    getSubdomain: function (url,icann) {
+      const parsed = parse(url, SUB_DOMAIN);
+      return icann ? parsed.icann.subdomain : parsed.subdomain;
+    },
+    getSitedomain: function (url,icann) {
+      const parsed = parse(url, SITE_DOMAIN);
+      return icann ? parsed.icann.sitedomain : parsed.sitedomain;
     },
     fromUserSettings: factory,
 
