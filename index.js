@@ -55,6 +55,7 @@ function factory(options) {
       hostname: _extractHostname(url),
       isValid: null,
       isIp: null,
+      isHost: null,
       tldExists: false,
       publicSuffix: null,
       domain: null,
@@ -69,6 +70,7 @@ function factory(options) {
 
     if (result.hostname === null) {
       result.isIp = false;
+      result.isHost = false;
       result.isValid = false;
       return result;
     }
@@ -76,9 +78,19 @@ function factory(options) {
     // Check if `hostname` is a valid ip address
     result.isIp = isIp(result.hostname);
     if (result.isIp) {
+      result.isHost = false;
       result.isValid = true;
       return result;
     }
+
+    // Check if `hostname` is a valid host
+    result.isHost = validHosts.includes(result.hostname)
+    if (result.isHost) {
+      result.isIp = false
+      result.isValid = true;
+      return result;
+    }
+
 
     // Check if `hostname` is valid
     result.isValid = isValidHostname(result.hostname);
